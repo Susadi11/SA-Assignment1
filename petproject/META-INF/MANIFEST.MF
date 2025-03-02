@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Petproject
+Bundle-SymbolicName: petproject
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: petproject
+Bundle-RequiredExecutionEnvironment: JavaSE-20
