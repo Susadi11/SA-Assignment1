@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Util
+Bundle-SymbolicName: com.petfood.delivery.util
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.petfood.delivery.util
+Import-Package: org.osgi.framework;version="[1.10.0,2.0.0)"
+Automatic-Module-Name: util
+Bundle-RequiredExecutionEnvironment: JavaSE-17
