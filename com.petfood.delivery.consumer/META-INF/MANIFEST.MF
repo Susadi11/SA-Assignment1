@@ -4,7 +4,9 @@ Bundle-Name: DeliveryServiceConsumer
 Bundle-SymbolicName: com.petfood.delivery.consumer
 Bundle-Version: 1.0.0
 Bundle-Activator: com.petfood.delivery.consumer.Activator
-Import-Package: org.osgi.framework;version="[1.8,2)", com.petfood.delivery.publisher
+Import-Package: com.petfood.delivery.publisher,
+ com.petfood.delivery.util,
+ org.osgi.framework;version="[1.8,2)"
 Bundle-Vendor: PETFOOD
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Automatic-Module-Name: com.petfood.delivery.consumer
