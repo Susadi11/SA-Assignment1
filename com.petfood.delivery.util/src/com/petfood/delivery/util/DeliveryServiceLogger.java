@@ -71,26 +71,99 @@ public class DeliveryServiceLogger {
             return;
         }
         
+        // Define column widths
+        final int idWidth = 10;
+        final int trackingWidth = 16;
+        final int contactWidth = 25;
+        final int timestampWidth = 16;
+        final int statusWidth = 15;
+        
         // Table header
-        System.out.println("\n" + BOLD + CYAN + "┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐" + RESET);
-        System.out.println(BOLD + CYAN + "│                                       📦 DELIVERY HISTORY                                         │" + RESET);
-        System.out.println(BOLD + CYAN + "├──────────────┬──────────────────┬───────────────────────────┬──────────────────┬─────────────────┤" + RESET);
-        System.out.println(BOLD + CYAN + "│ Order ID     │ Tracking Number  │ Customer Contact          │ Timestamp        │ Status          │" + RESET);
-        System.out.println(BOLD + CYAN + "├──────────────┼──────────────────┼───────────────────────────┼──────────────────┼─────────────────┤" + RESET);
+        String headerLine = "┌" + "─".repeat(idWidth + 2) + 
+                           "┬" + "─".repeat(trackingWidth + 2) + 
+                           "┬" + "─".repeat(contactWidth + 2) + 
+                           "┬" + "─".repeat(timestampWidth + 2) + 
+                           "┬" + "─".repeat(statusWidth + 2) + "┐";
+        
+        String titleLine = "│" + centerString(" 📦 DELIVERY HISTORY ", headerLine.length() - 2) + "│";
+        
+        String columnHeaderLine = "│" + centerString(" Order ID ", idWidth + 2) + 
+                                  "│" + centerString(" Tracking Number ", trackingWidth + 2) + 
+                                  "│" + centerString(" Customer Contact ", contactWidth + 2) + 
+                                  "│" + centerString(" Timestamp ", timestampWidth + 2) + 
+                                  "│" + centerString(" Status ", statusWidth + 2) + "│";
+        
+        String separatorLine = "├" + "─".repeat(idWidth + 2) + 
+                              "┼" + "─".repeat(trackingWidth + 2) + 
+                              "┼" + "─".repeat(contactWidth + 2) + 
+                              "┼" + "─".repeat(timestampWidth + 2) + 
+                              "┼" + "─".repeat(statusWidth + 2) + "┤";
+        
+        String footerLine = "└" + "─".repeat(idWidth + 2) + 
+                            "┴" + "─".repeat(trackingWidth + 2) + 
+                            "┴" + "─".repeat(contactWidth + 2) + 
+                            "┴" + "─".repeat(timestampWidth + 2) + 
+                            "┴" + "─".repeat(statusWidth + 2) + "┘";
+        
+        System.out.println("\n" + BOLD + CYAN + headerLine + RESET);
+        System.out.println(BOLD + CYAN + titleLine + RESET);
+        System.out.println(BOLD + CYAN + separatorLine + RESET);
+        System.out.println(BOLD + CYAN + columnHeaderLine + RESET);
+        System.out.println(BOLD + CYAN + separatorLine + RESET);
         
         // Table content
         for (DeliveryRecord record : records) {
             String statusColor = getStatusColor(record.getStatus());
-            System.out.println(CYAN + "│" + RESET + " " + BOLD + record.getOrderId() + "   " + 
-                               CYAN + "│" + RESET + " " + record.getTrackingNumber() + "    " + 
-                               CYAN + "│" + RESET + " " + record.getCustomerContact() + "      " + 
-                               CYAN + "│" + RESET + " " + record.getTimestamp() + " " + 
-                               CYAN + "│" + RESET + " " + statusColor + record.getStatus() + RESET + "        " + 
-                               CYAN + "│" + RESET);
+            
+            String row = CYAN + "│" + RESET + " " + 
+                        padRight(record.getOrderId(), idWidth) + " " + 
+                        CYAN + "│" + RESET + " " + 
+                        padRight(record.getTrackingNumber(), trackingWidth) + " " + 
+                        CYAN + "│" + RESET + " " + 
+                        padRight(record.getCustomerContact(), contactWidth) + " " + 
+                        CYAN + "│" + RESET + " " + 
+                        padRight(record.getTimestamp(), timestampWidth) + " " + 
+                        CYAN + "│" + RESET + " " + 
+                        statusColor + padRight(record.getStatus(), statusWidth) + RESET + " " + 
+                        CYAN + "│" + RESET;
+            
+            System.out.println(row);
         }
         
         // Table footer
-        System.out.println(BOLD + CYAN + "└──────────────┴──────────────────┴───────────────────────────┴──────────────────┴─────────────────┘" + RESET);
+        System.out.println(BOLD + CYAN + footerLine + RESET);
+    }
+
+    /**
+     * Helper method to center a string in a fixed width field
+     * @param text Text to center
+     * @param width Width of the field
+     * @return Centered string
+     */
+    private static String centerString(String text, int width) {
+        if (text.length() >= width) {
+            return text.substring(0, width);
+        }
+        int padding = width - text.length();
+        int paddingLeft = padding / 2;
+        int paddingRight = padding - paddingLeft;
+        return " ".repeat(paddingLeft) + text + " ".repeat(paddingRight);
+    }
+
+    /**
+     * Helper method to right pad a string to a fixed width
+     * @param text Text to pad
+     * @param width Width to pad to
+     * @return Padded string
+     */
+    private static String padRight(String text, int width) {
+        if (text == null) {
+            text = "";
+        }
+        if (text.length() >= width) {
+            return text.substring(0, width);
+        }
+        return text + " ".repeat(width - text.length());
     }
     
     /**
