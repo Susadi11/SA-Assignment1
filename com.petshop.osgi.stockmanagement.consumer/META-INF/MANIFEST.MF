@@ -9,5 +9,6 @@ Bundle-Vendor: PETSHOP
 Bundle-RequiredExecutionEnvironment: JavaSE-20
 Automatic-Module-Name: com.petshop.osgi.stockmanagement.consumer
 Import-Package: com.petshop.osgi.stockmanagement.publisher,
+ com.petshop.osgi.stockmanagement.utils,
  org.osgi.framework;version="1.3.0"
 Bundle-ActivationPolicy: lazy

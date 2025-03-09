@@ -1,5 +1,6 @@
 package com.petshop.osgi.stockmanagement.publisher;
 
+
 import com.petshop.osgi.stockmanagement.utils.StockDataGenerator;
 import java.util.LinkedList;
 import java.util.Queue;
