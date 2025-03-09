@@ -22,7 +22,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private void startGeneratingDeliveries() {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(() -> generateRandomDelivery(), 0, 10, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(() -> generateRandomDelivery(), 0, 20, TimeUnit.SECONDS);
         DeliveryServiceLogger.info("DeliveryServiceImpl", "Started scheduled delivery generation (every 10 seconds)");
     }
 
