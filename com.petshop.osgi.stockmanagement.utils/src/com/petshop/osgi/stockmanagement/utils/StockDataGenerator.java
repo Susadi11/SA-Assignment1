@@ -3,6 +3,8 @@ package com.petshop.osgi.stockmanagement.utils;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 
 public class StockDataGenerator {
 
@@ -22,9 +24,31 @@ public class StockDataGenerator {
     private static final String[] PET_TYPES = {"Dog", "Cat", "Bird", "Hamster"};
     private static final String[] FOOD_TYPES = {"Dry", "Wet", "Specialty"};
     private static final Random random = new Random();
+    
+    // Store item data for consistency
+    private static final Map<String, ItemData> itemDataMap = new HashMap<>();
+    
+    // Class to store item data
+    private static class ItemData {
+        String name;
+        String brand;
+        String petType;
+        String foodType;
+        String price;
+        String expiryDate;
+        
+        public ItemData(String name, String brand, String petType, String foodType, String price, String expiryDate) {
+            this.name = name;
+            this.brand = brand;
+            this.petType = petType;
+            this.foodType = foodType;
+            this.price = price;
+            this.expiryDate = expiryDate;
+        }
+    }
 
     // Generate a random Food ID
-    private static String generateFoodId() {
+    public static String generateFoodId() {
         return "PF" + String.format("%08X", random.nextInt(0x1000000));
     }
 
@@ -34,7 +58,7 @@ public class StockDataGenerator {
     }
 
     // Generate a random quantity between 10 and 100
-    private static int generateQuantity() {
+    public static int generateQuantity() {
         return 10 + random.nextInt(90);
     }
 
@@ -45,28 +69,42 @@ public class StockDataGenerator {
         return expiryDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 
-    // Generate a single row of stock data with colors
-    public static String generateStockData() {
-        String foodId = generateFoodId();
-        String name = FOOD_NAMES[random.nextInt(FOOD_NAMES.length)];
-        String brand = BRANDS[random.nextInt(BRANDS.length)];
-        String petType = PET_TYPES[random.nextInt(PET_TYPES.length)];
-        String foodType = FOOD_TYPES[random.nextInt(FOOD_TYPES.length)];
-        String price = generatePrice();
-        int quantity = generateQuantity();
-        String expiryDate = generateExpiryDate();
+    // Generate a single row of stock data with colors and specific foodId and quantity
+    public static String generateStockData(String foodId, int quantity) {
+        // Get or create item data
+        ItemData itemData;
+        if (itemDataMap.containsKey(foodId)) {
+            itemData = itemDataMap.get(foodId);
+        } else {
+            String name = FOOD_NAMES[random.nextInt(FOOD_NAMES.length)];
+            String brand = BRANDS[random.nextInt(BRANDS.length)];
+            String petType = PET_TYPES[random.nextInt(PET_TYPES.length)];
+            String foodType = FOOD_TYPES[random.nextInt(FOOD_TYPES.length)];
+            String price = generatePrice();
+            String expiryDate = generateExpiryDate();
+            
+            itemData = new ItemData(name, brand, petType, foodType, price, expiryDate);
+            itemDataMap.put(foodId, itemData);
+        }
 
         return String.format(
             "| %s%-10s%s | %s%-23s%s | %s%-13s%s | %s%-10s%s | %s%-10s%s | %s%-6s%s | %s%-8d%s | %s%-13s%s |",
             CYAN, foodId, RESET,       // Food ID (Cyan)
-            GREEN, name, RESET,        // Name (Green)
-            YELLOW, brand, RESET,      // Brand (Yellow)
-            BLUE, petType, RESET,      // Pet Type (Blue)
-            PURPLE, foodType, RESET,   // Food Type (Purple)
-            RED, price, RESET,         // Price (Red)
-            WHITE, quantity, RESET,    // Quantity (White)
-            CYAN, expiryDate, RESET   // Expiry Date (Cyan)
+            GREEN, itemData.name, RESET,        // Name (Green)
+            YELLOW, itemData.brand, RESET,      // Brand (Yellow)
+            BLUE, itemData.petType, RESET,      // Pet Type (Blue)
+            PURPLE, itemData.foodType, RESET,   // Food Type (Purple)
+            RED, itemData.price, RESET,         // Price (Red)
+            quantity < 20 ? RED : WHITE, quantity, RESET,    // Quantity (Red if low, otherwise White)
+            CYAN, itemData.expiryDate, RESET   // Expiry Date (Cyan)
         );
+    }
+    
+    // Generate a single row of stock data with random attributes
+    public static String generateStockData() {
+        String foodId = generateFoodId();
+        int quantity = generateQuantity();
+        return generateStockData(foodId, quantity);
     }
 
     // Generate the table header with colors
@@ -94,14 +132,5 @@ public class StockDataGenerator {
             "%s+----------+-------------------------+---------------+------------+------------+--------+----------+---------------+%s",
             CYAN, RESET // Table border (Cyan)
         );
-    }
-
-    // Main method for testing
-    public static void main(String[] args) {
-        System.out.println(getTableHeader());
-        for (int i = 0; i < 5; i++) {
-            System.out.println(generateStockData());
-        }
-        System.out.println(getTableFooter());
     }
 }

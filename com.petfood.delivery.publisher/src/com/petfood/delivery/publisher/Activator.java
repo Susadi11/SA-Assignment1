@@ -8,14 +8,15 @@ import com.petfood.delivery.util.DeliveryServiceLogger;
 
 public class Activator implements BundleActivator {
     private ServiceRegistration<DeliveryService> serviceRegistration;
-    
+
     @Override
     public void start(BundleContext context) throws Exception {
         DeliveryServiceLogger.success("Publisher", "Delivery Service Publisher Started");
-        DeliveryService deliveryService = new DeliveryServiceImpl();
+        // Pass the BundleContext to DeliveryServiceImpl
+        DeliveryService deliveryService = new DeliveryServiceImpl(context);
         serviceRegistration = context.registerService(DeliveryService.class, deliveryService, null);
     }
-    
+
     @Override
     public void stop(BundleContext context) throws Exception {
         DeliveryServiceLogger.warning("Publisher", "Delivery Service Publisher Stopped");
