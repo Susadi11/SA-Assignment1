@@ -13,6 +13,7 @@ public class CatalogServiceLogger {
     public static final String CYAN = "\u001B[36m";
 
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	public static final String BOLD = null;
 
     public static void info(String source, String message) {
         String timestamp = getCurrentTimestamp();
