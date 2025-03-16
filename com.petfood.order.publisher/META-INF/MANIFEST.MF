@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Publisher
+Bundle-SymbolicName: com.petfood.order.publisher
+Bundle-Version: 1.0.0.qualifier
+Export-Package: com.petfood.order.publisher
+Bundle-Activator: com.petfood.order.publisher.Activator
+Bundle-Vendor: PETFOOD
+Bundle-RequiredExecutionEnvironment: JavaSE-21
+Automatic-Module-Name: com.petfood.order.publisher
+Import-Package: org.osgi.framework;version="1.3.0"
+Require-Bundle: com.petfood.order.util;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
