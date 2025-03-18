@@ -1,5 +1,8 @@
 package com.petfood.catalog.consumer;
 
+import java.util.List;
+import java.util.Scanner;
+
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -7,21 +10,34 @@ import org.osgi.framework.ServiceReference;
 import com.petfood.catalog.publisher.CatalogService;
 import com.petfood.catalog.publisher.Product;
 import com.petfood.catalog.util.CatalogServiceLogger;
-
-import java.util.List;
-import java.util.Scanner;
+import com.petfood.order.publisher.OrderService;
+import com.petfood.order.util.OrderRecord;
 
 public class Activator implements BundleActivator {
-    private ServiceReference<CatalogService> serviceReference;
+    private ServiceReference<CatalogService> catalogServiceReference;
+    private ServiceReference<OrderService> orderServiceReference;
 
     @Override
     public void start(BundleContext context) throws Exception {
         CatalogServiceLogger.success("Consumer", "Catalog Service Consumer Started");
 
         // Get the reference to the published CatalogService
-        serviceReference = context.getServiceReference(CatalogService.class);
-        if (serviceReference != null) {
-            CatalogService catalogService = context.getService(serviceReference);
+        catalogServiceReference = context.getServiceReference(CatalogService.class);
+        
+        // Get the reference to the OrderService
+        orderServiceReference = context.getServiceReference(OrderService.class);
+        
+        if (catalogServiceReference != null) {
+            CatalogService catalogService = context.getService(catalogServiceReference);
+            
+            // Check if OrderService is available
+            OrderService orderService = null;
+            if (orderServiceReference != null) {
+                orderService = context.getService(orderServiceReference);
+                CatalogServiceLogger.success("Consumer", "Successfully connected to Order Service");
+            } else {
+                CatalogServiceLogger.warning("Consumer", "Order Service unavailable - ordering functionality disabled");
+            }
 
             // Create a Scanner for user input
             Scanner scanner = new Scanner(System.in);
@@ -35,7 +51,9 @@ public class Activator implements BundleActivator {
                 System.out.println("3. Delete a product");
                 System.out.println("4. Display all products");
                 System.out.println("5. Search products by category");
-                System.out.println("6. Exit");
+                System.out.println("6. Place an order");  // New option
+                System.out.println("7. View orders");      // New option
+                System.out.println("8. Exit");
                 System.out.print("Enter your choice: ");
 
                 int choice = scanner.nextInt();
@@ -159,8 +177,67 @@ public class Activator implements BundleActivator {
                             System.out.println("No products found in category: " + searchCategory);
                         } 
                         break;
-
+                        
                     case 6:
+                        // Place an order
+                        if (orderService != null) {
+                            // Display available products first
+                            System.out.println("\n----- Available Products -----");
+                            catalogService.displayProducts();
+                            
+                            System.out.print("\nEnter product ID to order: ");
+                            String orderProductId = scanner.nextLine();
+                            
+                            // Check if product exists
+                            Product product = catalogService.getAllProducts().stream()
+                                .filter(p -> p.getProductId().equals(orderProductId))
+                                .findFirst()
+                                .orElse(null);
+                                
+                            if (product != null) {
+                                System.out.println("Selected product: " + product.getProductName() + 
+                                                  " (Available: " + product.getStockLevel() + ")");
+                                
+                                System.out.print("Enter quantity to order: ");
+                                int orderQuantity = scanner.nextInt();
+                                scanner.nextLine(); // Consume the newline character
+                                
+                                // Place the order
+                                boolean orderPlaced = orderService.addOrder(orderProductId, orderQuantity);
+                                
+                                if (orderPlaced) {
+                                    System.out.println(CatalogServiceLogger.GREEN + "Order placed successfully!" + CatalogServiceLogger.RESET);
+                                } else {
+                                    System.out.println(CatalogServiceLogger.RED + "Failed to place order. " +
+                                                      "The product might be out of stock or insufficient quantity." + CatalogServiceLogger.RESET);
+                                }
+                            } else {
+                                System.out.println("Product not found with ID: " + orderProductId);
+                            }
+                        } else {
+                            System.out.println(CatalogServiceLogger.RED + "Order Service unavailable. Cannot place orders." + CatalogServiceLogger.RESET);
+                        }
+                        break;
+                        
+                    case 7:
+                        // View orders
+                        if (orderService != null) {
+                            List<OrderRecord> orders = orderService.getOrders();
+                            
+                            if (orders.isEmpty()) {
+                                System.out.println("No orders found.");
+                            } else {
+                                System.out.println("\n----- Order History -----");
+                                for (OrderRecord order : orders) {
+                                    System.out.println(order);
+                                }
+                            }
+                        } else {
+                            System.out.println(CatalogServiceLogger.RED + "Order Service unavailable. Cannot view orders." + CatalogServiceLogger.RESET);
+                        }
+                        break;
+
+                    case 8:
                         // Exit the program
                         CatalogServiceLogger.info("Consumer", "Exiting...");
                         return;
@@ -177,8 +254,13 @@ public class Activator implements BundleActivator {
     @Override
     public void stop(BundleContext context) throws Exception {
         CatalogServiceLogger.warning("Consumer", "Catalog Service Consumer Stopped");
-        if (serviceReference != null) {
-            context.ungetService(serviceReference);
+        
+        if (catalogServiceReference != null) {
+            context.ungetService(catalogServiceReference);
+        }
+        
+        if (orderServiceReference != null) {
+            context.ungetService(orderServiceReference);
         }
     }
 }
